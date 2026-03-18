@@ -1,0 +1,69 @@
+@import '~@/styles/variable.less';
+
+.container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 800px;
+  margin: @space-5 auto;
+
+  .right {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    .title {
+      font-size: 25px;
+      margin-bottom: @space-3;
+    }
+
+    .desc {
+      margin-bottom: @space-3;
+    }
+
+    :global {
+      .ant-descriptions-row > th,
+      .ant-descriptions-row > td {
+        padding-bottom: @space-3;
+      }
+    }
+  }
+}
+
+.dependence-config-wrapper {
+  display: flex;
+  gap: @space-10;
+}
+
+.ql-container-wrapper.ql-setting-container {
+  .ql-setting-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    > .ant-tabs {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  .ant-tabs-tabpane > div {
+    padding-left: 2px;
+  }
+
+  .ant-tabs-tabpane > .ant-form {
+    padding-left: 2px;
+  }
+
+  // Tab 分割线优化
+  :global {
+    .ant-tabs-nav::before {
+      border-bottom-color: rgba(99, 102, 241, 0.1);
+    }
+
+    .ant-tabs-content-holder {
+      display: none !important;
+    }
+  }
+}

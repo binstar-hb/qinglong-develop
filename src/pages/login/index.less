@@ -1,0 +1,188 @@
+@import '~@/styles/variable.less';
+@import '~@/styles/animations.less';
+@import '~@/styles/mixins.less';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  height: calc(100vh - var(--vh-offset, 0px));
+  overflow: auto;
+  background: transparent;
+}
+
+.top {
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.logo {
+  width: 56px;
+  height: 56px;
+  display: block;
+  margin-bottom: @space-6;
+  filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4));
+  animation: ql-float 3s ease-in-out infinite;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: @space-4;
+  background: linear-gradient(135deg, @indigo-600, @indigo-400);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.desc {
+  margin-top: @space-3;
+  margin-bottom: @space-10;
+  color: @text-color-secondary;
+  font-size: @font-size-base;
+}
+
+.main {
+  padding: @space-8;
+  border-radius: @radius-xl;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 8px 32px rgba(99, 102, 241, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  width: 380px;
+  animation: ql-scaleIn @transition-slow @ease-elastic;
+
+  @media screen and (max-width: @screen-sm) {
+    width: 90vw;
+    max-width: 380px;
+    padding: @space-6;
+  }
+
+  :global {
+    .ant-tabs-nav-list {
+      margin: auto;
+      font-size: 16px;
+    }
+
+    // 输入框半透明白底 + indigo 边框
+    .ant-input {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(99, 102, 241, 0.2);
+      border-radius: @radius-sm;
+
+      &:focus,
+      &:hover {
+        border-color: @indigo-400;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+      }
+    }
+
+    // 登录按钮 indigo→purple 渐变
+    .ant-btn-primary {
+      background: linear-gradient(135deg, @indigo-500, #8b5cf6);
+      border: none;
+      height: 40px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: @radius-sm;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+      transition: all @transition-normal @ease-smooth;
+
+      &:hover {
+        background: linear-gradient(135deg, @indigo-600, #7c3aed);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .ant-form-item-label > label {
+      font-weight: 500;
+    }
+  }
+
+  .icon {
+    margin-left: @space-4;
+    color: rgba(0, 0, 0, 0.2);
+    font-size: 24px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: color @transition-normal;
+
+    &:hover {
+      color: @indigo-500;
+    }
+  }
+
+  .other {
+    margin-top: @space-6;
+    line-height: 22px;
+    text-align: left;
+    .register {
+      float: right;
+    }
+  }
+
+  .prefixIcon {
+    color: @indigo-500;
+    font-size: @font-size-base;
+  }
+}
+
+.extra {
+  margin-top: @space-5;
+  width: 380px;
+  color: @text-color-secondary;
+
+  @media screen and (max-width: @screen-sm) {
+    width: 90vw;
+    max-width: 380px;
+  }
+}
+
+// 暗色模式
+:global(body[data-dark='true']) {
+  .main {
+    background: rgba(15, 11, 30, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+    :global {
+      .ant-input {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+
+        &:focus,
+        &:hover {
+          border-color: @indigo-400;
+        }
+      }
+    }
+  }
+
+  .logo {
+    filter: drop-shadow(0 0 24px rgba(129, 140, 248, 0.5));
+  }
+
+  .title {
+    background: linear-gradient(135deg, @indigo-300, @indigo-400);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

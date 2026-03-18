@@ -1,0 +1,14 @@
+.dynamic-background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f0f0ff 100%);
+}
+
+body[data-dark='true'] .dynamic-background-canvas {
+  background: linear-gradient(135deg, #0f0b1e 0%, #1a1333 50%, #0d1117 100%);
+}

@@ -1,0 +1,9 @@
+@import '~@/styles/variable.less';
+@import '~@/styles/mixins.less';
+
+// 配置文件页面跟随全局毛玻璃覆写
+// Select 下拉毛玻璃样式
+.ant-select-dropdown {
+  .glass-card();
+  border-radius: @radius-md !important;
+}

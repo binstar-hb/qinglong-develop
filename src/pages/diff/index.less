@@ -1,0 +1,36 @@
+@import '~@/styles/variable.less';
+@import '~@/styles/mixins.less';
+
+.d2h-files-diff {
+  height: calc(100vh - 130px);
+  height: calc(100vh - var(--vh-offset, 0px) - 130px);
+  overflow: auto;
+}
+
+.d2h-code-side-linenumber {
+  position: relative;
+}
+
+.d2h-code-side-line {
+  padding: 0 0.5em;
+}
+
+.diff-switch-file {
+  min-width: 768px;
+  flex: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  .ant-form-item {
+    margin-bottom: @space-2;
+  }
+
+  + section {
+    height: calc(100% - 40px) !important;
+  }
+
+  // Select 毛玻璃
+  .ant-select-dropdown {
+    .glass-card();
+    border-radius: @radius-md !important;
+  }
+}

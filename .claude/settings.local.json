@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(grep -n \"''@codemirror/state'': 6.5.4\" pnpm-lock.yaml)",
+      "Bash(pnpm install:*)",
+      "Bash(git config:*)",
+      "Bash(ssh -T git@github.com)",
+      "Bash(git ls-remote:*)",
+      "Bash(rm \"node_modules/.pnpm/@codemirror+view@6.39.16/node_modules/@codemirror/state\")",
+      "Bash(ln -s \"/e/lang/qinglong-develop/node_modules/.pnpm/@codemirror+state@6.4.1/node_modules/@codemirror/state/\" \"node_modules/.pnpm/@codemirror+view@6.39.16/node_modules/@codemirror/state\")",
+      "Bash(node -e \":*)",
+      "Bash(npx max:*)",
+      "Bash(find E:/lang/qinglong-develop/src -type f \\\\\\(-name global* -o -name *theme* -o -name *token* \\\\\\))",
+      "Bash(find /e/lang/qinglong-develop -name *i18n* -o -name *intl*)",
+      "Bash(ls -la /e/lang/qinglong-develop/src/pages/*/index.less)",
+      "Bash(find E:/lang/qinglong-develop/src/components -type f -name *.tsx -o -name *.ts)",
+      "Bash(pnpm run:*)",
+      "Bash(npx umi:*)",
+      "Bash(pnpm ls:*)",
+      "Bash(pnpm info:*)",
+      "WebSearch",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

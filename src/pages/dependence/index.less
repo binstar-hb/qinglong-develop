@@ -1,0 +1,16 @@
+@import '~@/styles/variable.less';
+@import '~@/styles/animations.less';
+
+// 安装状态 Tag 脉冲效果
+.ant-tag-processing {
+  --pulse-color: rgba(99, 102, 241, 0.4);
+  animation: ql-statusPulse 2s infinite;
+}
+
+.ant-tag-success {
+  --pulse-color: rgba(34, 197, 94, 0.4);
+}
+
+.ant-tag-error {
+  --pulse-color: rgba(239, 68, 68, 0.4);
+}

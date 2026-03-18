@@ -1,0 +1,70 @@
+@import '~@/styles/variable.less';
+@import '~@/styles/animations.less';
+@import '~@/styles/mixins.less';
+
+.error-wrapper {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+
+  .react-terminal-wrapper {
+    max-width: 90%;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+
+  .code-box {
+    position: relative;
+    display: inline-block;
+    width: 80vw;
+    height: 90vh;
+    margin: @space-4;
+    // 毛玻璃样式
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: @radius-lg @radius-lg 0 0;
+    box-shadow: @shadow-lg;
+    color: rgba(0, 0, 0, 0.88);
+    animation: ql-scaleIn @transition-slow @ease-elastic;
+
+    .browser-markup {
+      position: relative;
+      border-top: 2em solid rgba(230, 230, 230, 0.5);
+      border-radius: 3px 3px 0 0;
+
+      &::before {
+        position: absolute;
+        top: -1.25em;
+        left: 1em;
+        display: block;
+        width: 0.5em;
+        height: 0.5em;
+        background-color: #f44;
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px #f44, 1.5em 0 0 2px #9b3, 3em 0 0 2px #fb5;
+        content: '';
+      }
+    }
+
+    .log {
+      height: calc(90vh - 150px);
+      overflow-y: auto;
+      padding: @space-3;
+      white-space: pre-line;
+    }
+  }
+}
+
+body[data-dark='true'] {
+  .error-wrapper .code-box {
+    background: rgba(15, 11, 30, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+
+    .browser-markup {
+      border-top-color: rgba(60, 60, 60, 0.5);
+    }
+  }
+}

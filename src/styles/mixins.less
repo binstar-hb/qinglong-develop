@@ -1,0 +1,68 @@
+// ============================================================
+// 清珑面板 LESS Mixins
+// ============================================================
+@import './variable.less';
+
+// 毛玻璃面板（用于侧边栏、顶栏等大面积区域）
+.glass-panel() {
+  background: @glass-bg;
+  backdrop-filter: @glass-blur;
+  -webkit-backdrop-filter: @glass-blur;
+  border: @glass-border;
+  box-shadow: @glass-shadow;
+  will-change: transform;
+}
+
+// 毛玻璃卡片（用于内容卡片、弹窗等）
+.glass-card() {
+  background: @glass-bg-heavy;
+  backdrop-filter: @glass-blur;
+  -webkit-backdrop-filter: @glass-blur;
+  border: @glass-border;
+  border-radius: @radius-lg;
+  box-shadow: @shadow-lg;
+  will-change: transform;
+}
+
+// 悬浮上浮效果
+.hover-float() {
+  transition: transform @transition-normal @ease-elastic,
+              box-shadow @transition-normal @ease-smooth;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: @shadow-lg;
+  }
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// 状态脉冲动画
+.status-pulse(@color) {
+  --pulse-color: @color;
+  animation: ql-statusPulse 2s infinite;
+}
+
+// 骨架屏加载
+.skeleton-loading() {
+  background: linear-gradient(90deg,
+    rgba(99, 102, 241, 0.06) 25%,
+    rgba(99, 102, 241, 0.12) 50%,
+    rgba(99, 102, 241, 0.06) 75%);
+  background-size: 400% 100%;
+  animation: ql-shimmer 1.5s ease infinite;
+}
+
+// Firefox 降级：不支持 backdrop-filter 时回退
+.glass-fallback(@fallback-bg) {
+  @supports not (backdrop-filter: blur(1px)) {
+    background: @fallback-bg;
+    backdrop-filter: none;
+  }
+}
+
+// Indigo 发光边框
+.focus-glow() {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: @indigo-400;
+}

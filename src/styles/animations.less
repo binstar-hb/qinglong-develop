@@ -1,0 +1,62 @@
+// ============================================================
+// 清珑面板 可复用动画关键帧
+// ============================================================
+
+@keyframes ql-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ql-slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ql-scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ql-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes ql-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes ql-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes ql-gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes ql-statusPulse {
+  0% { box-shadow: 0 0 0 0 var(--pulse-color, rgba(99, 102, 241, 0.4)); }
+  70% { box-shadow: 0 0 0 6px var(--pulse-color, rgba(99, 102, 241, 0)); }
+  100% { box-shadow: 0 0 0 0 var(--pulse-color, rgba(99, 102, 241, 0)); }
+}
+
+@keyframes ql-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,44 @@
+@import '~@/styles/variable.less';
+@import '~@/styles/mixins.less';
+
+.left-tree {
+  &-container {
+    overflow: hidden;
+    position: relative;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  &-scroller {
+    flex: 1;
+    overflow: auto;
+    padding-top: 6px;
+  }
+}
+
+.log-container {
+  display: flex;
+  position: relative;
+}
+
+:global {
+  .Pane.vertical.Pane1 {
+    padding-right: 5px;
+    border-right: 1px dashed @indigo-300;
+  }
+
+  body[data-dark='true'] {
+    .left-tree-container {
+      background: rgba(15, 11, 30, 0.4);
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .Pane.vertical.Pane1 {
+      border-right-color: @indigo-800;
+    }
+  }
+}
