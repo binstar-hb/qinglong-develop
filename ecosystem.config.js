@@ -3,6 +3,7 @@ module.exports = {
     {
       name: 'qinglong',
       max_restarts: 5,
+      min_uptime: 60000,
       kill_timeout: 1000,
       wait_ready: true,
       listen_timeout: 30000,

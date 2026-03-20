@@ -18,6 +18,10 @@ interface WorkerMetadata {
   startTime: Date;
 }
 
+// 5 分钟滑动窗口内最多自动重启 2 次，超限则放弃
+const GRPC_RESTART_WINDOW_MS = 5 * 60 * 1000;
+const GRPC_RESTART_MAX = 2;
+
 class Application {
   private app: express.Application;
   private httpServerService?: HttpServerService;
@@ -25,6 +29,8 @@ class Application {
   private isShuttingDown = false;
   private workerMetadataMap = new Map<number, WorkerMetadata>();
   private httpWorker?: Worker;
+  /** 记录 gRPC worker 每次重启的时间戳，用于滑动窗口限流 */
+  private grpcRestartTimestamps: number[] = [];
 
   constructor() {
     this.app = express();
@@ -53,12 +59,54 @@ class Application {
     }
   }
 
+  /**
+   * 检查 gRPC worker 是否仍在允许重启的范围内。
+   * 滑动窗口：GRPC_RESTART_WINDOW_MS 内超过 GRPC_RESTART_MAX 次则返回 false。
+   */
+  private canRestartGrpc(): boolean {
+    const now = Date.now();
+    this.grpcRestartTimestamps = this.grpcRestartTimestamps.filter(
+      (t) => now - t < GRPC_RESTART_WINDOW_MS,
+    );
+    return this.grpcRestartTimestamps.length < GRPC_RESTART_MAX;
+  }
+
+  private recordGrpcRestart() {
+    this.grpcRestartTimestamps.push(Date.now());
+  }
+
+  /**
+   * 启动 gRPC worker 并等待就绪；超时后最多自动重试一次。
+   * 受滑动窗口限流保护，避免死循环。
+   */
+  private async startGrpcWorkerWithRetry(): Promise<Worker> {
+    const tryStart = async (): Promise<Worker> => {
+      const worker = this.forkWorker('grpc');
+      await this.waitForWorkerReady(worker, 30000);
+      return worker;
+    };
+
+    try {
+      return await tryStart();
+    } catch (err) {
+      Logger.error('✌️ gRPC worker 启动超时，尝试自动重启一次…', err);
+
+      if (!this.canRestartGrpc()) {
+        Logger.error(
+          `✌️ gRPC worker 在 ${GRPC_RESTART_WINDOW_MS / 60000} 分钟内已重启 ${GRPC_RESTART_MAX} 次，放弃自动重启`,
+        );
+        throw err;
+      }
+
+      this.recordGrpcRestart();
+      Logger.info('✌️ 正在重新启动 gRPC worker…');
+      return await tryStart();
+    }
+  }
+
   private startMasterProcess() {
-    // Fork gRPC worker first and wait for it to be ready
-    const grpcWorker = this.forkWorker('grpc');
-    
-    // Wait for gRPC worker to signal it's ready before starting HTTP worker
-    this.waitForWorkerReady(grpcWorker, 30000)
+    // Fork gRPC worker first and wait for it to be ready（支持自动重试一次）
+    this.startGrpcWorkerWithRetry()
       .then(() => {
         Logger.info('✌️ gRPC worker is ready, starting HTTP worker');
         this.httpWorker = this.forkWorker('http');
@@ -78,6 +126,14 @@ class Application {
           );
           // If gRPC worker died, restart it and wait for it to be ready
           if (metadata.serviceType === 'grpc') {
+            if (!this.canRestartGrpc()) {
+              Logger.error(
+                `✌️ gRPC worker 在 ${GRPC_RESTART_WINDOW_MS / 60000} 分钟内已重启 ${GRPC_RESTART_MAX} 次，停止自动重启`,
+              );
+              process.exit(1);
+              return;
+            }
+            this.recordGrpcRestart();
             const newGrpcWorker = this.forkWorker('grpc');
             this.waitForWorkerReady(newGrpcWorker, 30000)
               .then(() => {

@@ -17,6 +17,7 @@ const CheckUpdate = () => {
   };
 
   const reloadSystem = () => {
+    const deadline = Date.now() + 1000 * 30;
     request
       .put(`${config.apiPrefix}update/reload`)
       .then(() => {
@@ -27,7 +28,7 @@ const CheckUpdate = () => {
               <Countdown
                 className="inline-countdown"
                 format="ss"
-                value={Date.now() + 1000 * 30}
+                value={deadline}
               />
               {intl.get('秒后自动刷新')}
             </span>
@@ -37,9 +38,10 @@ const CheckUpdate = () => {
         disableBody();
         setTimeout(() => {
           window.location.reload();
-        }, 30000);
+        }, deadline - Date.now());
       })
       .catch((error: any) => {
+        message.error(intl.get('重启失败，请稍后重试'));
         console.log(error);
       });
   };

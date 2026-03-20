@@ -5,7 +5,7 @@ import { Logger } from 'winston';
 import config from '../config';
 import * as fs from 'fs/promises';
 import { celebrate, Joi } from 'celebrate';
-import path, { join, parse } from 'path';
+import nodePath, { join, parse } from 'path';
 import ScriptService from '../services/script';
 import multer from 'multer';
 import { writeFileWithLock } from '../shared/utils';
@@ -19,7 +19,7 @@ const ALLOWED_EXTENSIONS = [
 
 function sanitizeFilename(filename: string): string {
   // 提取纯文件名，移除路径遍历字符
-  return path.basename(filename).replace(/\0/g, '');
+  return nodePath.basename(filename).replace(/\0/g, '');
 }
 
 const storage = multer.diskStorage({
@@ -34,7 +34,7 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase();
+    const ext = nodePath.extname(file.originalname).toLowerCase();
     if (ALLOWED_EXTENSIONS.includes(ext)) {
       cb(null, true);
     } else {
@@ -68,7 +68,7 @@ export default (app: Router) => {
         if (req.query.path) {
           const queryPath = req.query.path as string;
           // 路径遍历检查
-          const resolvedPath = path.resolve(config.scriptPath, queryPath);
+          const resolvedPath = nodePath.resolve(config.scriptPath, queryPath);
           if (!resolvedPath.startsWith(config.scriptPath)) {
             return res.send({ code: 403, message: '路径不合法' });
           }
@@ -173,12 +173,11 @@ export default (app: Router) => {
 
         if (!path) {
           path = config.scriptPath;
-        }
-        if (!path.endsWith('/')) {
-          path += '/';
-        }
-        if (!path.startsWith('/')) {
+        } else if (!nodePath.isAbsolute(path)) {
           path = join(config.scriptPath, path);
+        }
+        if (!path.endsWith('/') && !path.endsWith(nodePath.sep)) {
+          path += nodePath.sep;
         }
         if (config.writePathList.every((x) => !path.startsWith(x))) {
           return res.send({
