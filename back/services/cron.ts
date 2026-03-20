@@ -524,7 +524,7 @@ export default class CronService {
             cron,
             true,
           )}`,
-          { shell: '/bin/bash' },
+          { shell: true },
         );
 
         await CrontabModel.update(

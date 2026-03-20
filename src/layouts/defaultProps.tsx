@@ -8,7 +8,6 @@ import {
   CodeOutlined,
   AppstoreOutlined,
   ReadOutlined,
-  DiffOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -50,12 +49,7 @@ export const menuItems: MenuItem[] = [
     icon: <ReadOutlined />,
     label: intl.get('日志管理'),
   },
-  {
-    key: '/diff',
-    icon: <DiffOutlined />,
-    label: intl.get('对比工具'),
-  },
-  {
+{
     key: '/setting',
     icon: <SettingOutlined />,
     label: intl.get('系统设置'),

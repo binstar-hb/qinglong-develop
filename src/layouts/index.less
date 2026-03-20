@@ -203,6 +203,14 @@ body {
     overflow: auto;
   }
 
+  &.ql-container-wrapper-has-tab > .ant-tabs {
+    overflow: hidden;
+
+    .ant-tabs-content-holder {
+      overflow: auto;
+    }
+  }
+
   .log-container,
   .react-codemirror2,
   .CodeMirror {
@@ -428,6 +436,7 @@ body[data-mode='phone'] header {
 .ql-sider-logo {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 16px 8px;
   flex-shrink: 0;
   overflow: hidden;
@@ -459,6 +468,14 @@ body[data-mode='phone'] header {
   .ant-menu {
     background: transparent !important;
     border-inline-end: none !important;
+  }
+
+  .ant-menu-inline-collapsed {
+    width: 48px;
+
+    .ant-menu-item {
+      padding-inline: calc((48px - 16px) / 2);
+    }
   }
 }
 
@@ -548,6 +565,14 @@ body[data-mode='phone'] header {
 // ============================================================
 // 侧边栏底部用户/折叠区
 // ============================================================
+.ql-sider-collapsed {
+  .ql-sider-footer {
+    .side-menu-container {
+      justify-content: center;
+    }
+  }
+}
+
 .side-menu-container {
   display: flex;
   justify-content: space-between;

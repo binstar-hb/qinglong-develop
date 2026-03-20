@@ -605,25 +605,26 @@ const Dependence = () => {
         defaultActiveKey="nodejs"
         size="small"
         tabPlacement="top"
-        style={{ flex: 'none' }}
         destroyInactiveTabPane
         onChange={onTabChange}
         items={[
           {
             key: 'nodejs',
             label: 'NodeJs',
+            children,
           },
           {
             key: 'python3',
             label: 'Python3',
+            children,
           },
           {
             key: 'linux',
             label: 'Linux',
+            children,
           },
         ]}
       />
-      {children}
       {isModalVisible && (
         <DependenceModal
           handleCancel={handleCancel}

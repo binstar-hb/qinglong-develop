@@ -76,7 +76,7 @@ export default class ScheduleService {
           const startTime = dayjs();
           await callbacks.onBefore?.(startTime);
 
-          const cp = spawn(command, { shell: '/bin/bash' });
+          const cp = spawn(command, { shell: true });
 
           callbacks.onStart?.(cp, startTime);
           completionTime === 'start' && resolve(cp.pid);

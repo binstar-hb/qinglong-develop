@@ -15,6 +15,7 @@ import {
   CloudDownloadOutlined,
   CloudUploadOutlined,
   InfoCircleOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import config from '@/utils/config';
 import { request } from '@/utils/http';
@@ -40,6 +41,7 @@ const exportModules = [
 
 const Backup = () => {
   const [exportLoading, setExportLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const showUploadProgress = useProgress(intl.get('上传'));
   const showDownloadProgress = useProgress(intl.get('下载'));
   const [visible, setVisible] = useState(false);
@@ -112,6 +114,55 @@ const Backup = () => {
           .catch((error: any) => {
             console.log(error);
           });
+      },
+    });
+  };
+
+  const resetData = () => {
+    Modal.confirm({
+      width: 500,
+      maskClosable: false,
+      title: intl.get('确认清空数据'),
+      centered: true,
+      content: (
+        <>
+          <div style={{ color: '#ff4d4f', fontWeight: 500, marginBottom: 8 }}>
+            {intl.get('此操作将删除所有数据，包括定时任务、环境变量、脚本文件、依赖、配置文件等，恢复为初始状态。')}
+          </div>
+          <div>{intl.get('清空后系统将自动重启，需要重新设置账号密码。')}</div>
+          <div>{intl.get('建议先备份数据再执行此操作。')}</div>
+        </>
+      ),
+      okText: intl.get('确认清空'),
+      okButtonProps: { danger: true },
+      onOk() {
+        setResetLoading(true);
+        request
+          .put(`${config.apiPrefix}system/data/reset`)
+          .then(() => {
+            message.success({
+              content: (
+                <span>
+                  {intl.get('系统将在')}
+                  <Countdown
+                    className="inline-countdown"
+                    format="ss"
+                    value={Date.now() + 1000 * 30}
+                  />
+                  {intl.get('秒后自动刷新')}
+                </span>
+              ),
+              duration: 30,
+            });
+            disableBody();
+            setTimeout(() => {
+              window.location.reload();
+            }, 30000);
+          })
+          .catch((error: any) => {
+            console.log(error);
+          })
+          .finally(() => setResetLoading(false));
       },
     });
   };
@@ -197,6 +248,16 @@ const Backup = () => {
             {intl.get('还原数据')}
           </Button>
         </Upload>
+
+        <Button
+          danger
+          icon={<DeleteOutlined />}
+          onClick={resetData}
+          loading={resetLoading}
+          size="large"
+        >
+          {intl.get('清空数据')}
+        </Button>
       </div>
 
       <Modal

@@ -44,6 +44,13 @@ export default async () => {
   }
   const [systemConfig] = await SystemModel.findOrCreate({
     where: { type: AuthDataType.systemConfig },
+    defaults: {
+      type: AuthDataType.systemConfig,
+      info: {
+        logRemoveFrequency: 7,
+        pythonMirror: 'https://pypi.tuna.tsinghua.edu.cn/simple',
+      },
+    },
   });
   await SystemModel.findOrCreate({
     where: { type: AuthDataType.notification },

@@ -47,7 +47,7 @@ export function runCron(cmd: string, cron: ICron): Promise<number | void> {
           command: cmd,
         })}`,
       );
-      const cp = spawn(cmd, { shell: '/bin/bash' });
+      const cp = spawn(cmd, { shell: true });
 
       cp.stderr.on('data', (data) => {
         Logger.info(

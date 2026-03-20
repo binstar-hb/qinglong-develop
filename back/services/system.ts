@@ -365,7 +365,7 @@ export default class SystemService {
   public async reloadSystem(target?: 'system' | 'data') {
     const cmd = `real_time=true ql reload ${target || ''}`;
     const cp = spawn(cmd, {
-      shell: '/bin/bash',
+      shell: true,
       detached: true,
       stdio: 'ignore',
     });
@@ -440,14 +440,21 @@ export default class SystemService {
 
   public async exportData(res: Response, type?: string[]) {
     try {
+      await fs.promises.mkdir(config.tmpPath, { recursive: true });
       let dataDirs = ['db', 'upload'];
       if (type && type.length) {
         dataDirs = dataDirs.concat(type.filter((x) => x !== 'base'));
       }
-      const dataPaths = dataDirs.map((dir) => `data/${dir}`);
+      const existingDirs = dataDirs.filter((dir) =>
+        fs.existsSync(path.join(config.dataPath, dir)),
+      );
+      if (existingDirs.length === 0) {
+        return res.send({ code: 400, message: '没有可备份的数据目录' });
+      }
+      const dataPaths = existingDirs.map((dir) => `data/${dir}`);
+      const parentDir = path.resolve(config.dataPath, '..');
       await promiseExec(
-        `cd ${config.dataPath} && cd ../ && tar -zcvf ${config.dataTgzFile
-        } ${dataPaths.join(' ')}`,
+        `cd "${parentDir}" && tar -zcf "${config.dataTgzFile}" ${dataPaths.join(' ')}`,
       );
       res.download(config.dataTgzFile);
     } catch (error: any) {
@@ -552,6 +559,26 @@ export default class SystemService {
     }
     
     return { code: 200, data: result };
+  }
+
+  public async resetData() {
+    const dirs = [
+      'config', 'scripts', 'repo', 'raw', 'deps', 'dep_cache',
+      'log', 'syslog', 'ssh.d', 'db', 'upload', 'bak',
+    ];
+    for (const dir of dirs) {
+      const dirPath = path.join(config.dataPath, dir);
+      try {
+        await fs.promises.rm(dirPath, { recursive: true, force: true });
+      } catch (error) { }
+    }
+    // 删除认证相关文件
+    for (const file of ['auth.json', 'token.json']) {
+      try {
+        await fs.promises.rm(path.join(config.configPath, file), { force: true });
+      } catch (error) { }
+    }
+    return this.reloadSystem('data');
   }
 
   public async cleanDependence(type: 'node' | 'python3') {

@@ -319,6 +319,19 @@ export default (app: Router) => {
   );
 
   route.put(
+    '/data/reset',
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const systemService = Container.get(SystemService);
+        const result = await systemService.resetData();
+        res.send(result);
+      } catch (e) {
+        return next(e);
+      }
+    },
+  );
+
+  route.put(
     '/data/export',
     celebrate({
       body: Joi.object({

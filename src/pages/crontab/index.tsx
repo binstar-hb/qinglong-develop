@@ -398,7 +398,7 @@ const Crontab = () => {
             },
           );
           const subscriptionMap = Object.fromEntries(
-            subscriptions?.data?.map((x) => [x.id, x]),
+            subscriptions?.data?.map((x) => [x.id, x]) || [],
           );
 
           setValue(
@@ -906,6 +906,97 @@ const Crontab = () => {
     setViewConf(view ? view : null);
   };
 
+  const tableContent = (
+    <div ref={tableRef}>
+      {selectedRowIds.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <Button
+            type="primary"
+            style={{ marginBottom: 5 }}
+            onClick={delCrons}
+          >
+            {intl.get('批量删除')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => operateCrons(0)}
+            style={{ marginLeft: 8, marginBottom: 5 }}
+          >
+            {intl.get('批量启用')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => operateCrons(1)}
+            style={{ marginLeft: 8, marginRight: 8 }}
+          >
+            {intl.get('批量禁用')}
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginRight: 8 }}
+            onClick={() => operateCrons(2)}
+          >
+            {intl.get('批量运行')}
+          </Button>
+          <Button type="primary" onClick={() => operateCrons(3)}>
+            {intl.get('批量停止')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => operateCrons(4)}
+            style={{ marginLeft: 8, marginRight: 8 }}
+          >
+            {intl.get('批量置顶')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => operateCrons(5)}
+            style={{ marginLeft: 8, marginRight: 8 }}
+          >
+            {intl.get('批量取消置顶')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => setIsLabelModalVisible(true)}
+            style={{ marginLeft: 8, marginRight: 8 }}
+          >
+            {intl.get('批量修改标签')}
+          </Button>
+          <span style={{ marginLeft: 8 }}>
+            {intl.get('已选择')}
+            <a>{selectedRowIds?.length}</a>
+            {intl.get('项')}
+          </span>
+        </div>
+      )}
+      <Table
+        columns={columns}
+        sortDirections={['descend', 'ascend']}
+        pagination={{
+          current: pageConf.page,
+          pageSize: pageConf.size,
+          showSizeChanger: true,
+          simple: isPhone,
+          total,
+          showTotal: (total: number, range: number[]) =>
+            `第 ${range[0]}-${range[1]} 条/总共 ${total} 条`,
+          pageSizeOptions: [10, 20, 50, 100, 200, 500, total || 10000].sort(
+            (a, b) => a - b,
+          ),
+        }}
+        dataSource={value}
+        rowKey="id"
+        size="medium"
+        scroll={{ x: 1200, y: tableScrollHeight }}
+        loading={loading}
+        rowSelection={rowSelection}
+        rowClassName={getRowClassName}
+        onChange={onPageChange}
+        virtual={!isPhone && pageConf.size >= 50}
+      />
+    </div>
+  );
+
   return (
     <div className="ql-container-wrapper crontab-wrapper ql-container-wrapper-has-tab">
       <div className="ql-page-header" style={headerStyle}>
@@ -931,7 +1022,6 @@ const Crontab = () => {
         size="small"
         activeKey={activeKey}
         tabPlacement="top"
-        style={{ flex: 'none' }}
         className={`crontab-view ${moreMenuActive ? 'more-active' : ''}`}
         tabBarExtraContent={
           <Dropdown
@@ -949,101 +1039,12 @@ const Crontab = () => {
           </Dropdown>
         }
         onTabClick={tabClick}
-        items={[
-          ...[...enabledCronViews].slice(0, SHOW_TAB_COUNT).map((x) => ({
-            key: x.id,
-            label: x.name,
-          })),
-        ]}
+        items={enabledCronViews.map((x) => ({
+          key: x.id,
+          label: x.name,
+          children: tableContent,
+        }))}
       />
-      <div ref={tableRef}>
-        {selectedRowIds.length > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            <Button
-              type="primary"
-              style={{ marginBottom: 5 }}
-              onClick={delCrons}
-            >
-              {intl.get('批量删除')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => operateCrons(0)}
-              style={{ marginLeft: 8, marginBottom: 5 }}
-            >
-              {intl.get('批量启用')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => operateCrons(1)}
-              style={{ marginLeft: 8, marginRight: 8 }}
-            >
-              {intl.get('批量禁用')}
-            </Button>
-            <Button
-              type="primary"
-              style={{ marginRight: 8 }}
-              onClick={() => operateCrons(2)}
-            >
-              {intl.get('批量运行')}
-            </Button>
-            <Button type="primary" onClick={() => operateCrons(3)}>
-              {intl.get('批量停止')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => operateCrons(4)}
-              style={{ marginLeft: 8, marginRight: 8 }}
-            >
-              {intl.get('批量置顶')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => operateCrons(5)}
-              style={{ marginLeft: 8, marginRight: 8 }}
-            >
-              {intl.get('批量取消置顶')}
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => setIsLabelModalVisible(true)}
-              style={{ marginLeft: 8, marginRight: 8 }}
-            >
-              {intl.get('批量修改标签')}
-            </Button>
-            <span style={{ marginLeft: 8 }}>
-              {intl.get('已选择')}
-              <a>{selectedRowIds?.length}</a>
-              {intl.get('项')}
-            </span>
-          </div>
-        )}
-        <Table
-          columns={columns}
-          sortDirections={['descend', 'ascend']}
-          pagination={{
-            current: pageConf.page,
-            pageSize: pageConf.size,
-            showSizeChanger: true,
-            simple: isPhone,
-            total,
-            showTotal: (total: number, range: number[]) =>
-              `第 ${range[0]}-${range[1]} 条/总共 ${total} 条`,
-            pageSizeOptions: [10, 20, 50, 100, 200, 500, total || 10000].sort(
-              (a, b) => a - b,
-            ),
-          }}
-          dataSource={value}
-          rowKey="id"
-          size="medium"
-          scroll={{ x: 1200, y: tableScrollHeight }}
-          loading={loading}
-          rowSelection={rowSelection}
-          rowClassName={getRowClassName}
-          onChange={onPageChange}
-          virtual={!isPhone && pageConf.size >= 50}
-        />
-      </div>
       {isLogModalVisible && (
         <CronLogModal
           handleCancel={() => {

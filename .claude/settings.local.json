@@ -23,7 +23,14 @@
       "Bash(npx tsc:*)",
       "Bash(pnpm add:*)",
       "Bash(npm install:*)",
-      "Bash(ls E:/lang/qinglong-develop/node_modules/bcryptjs/*.d.ts)"
+      "Bash(ls E:/lang/qinglong-develop/node_modules/bcryptjs/*.d.ts)",
+      "Bash(grep -E \"\\(package\\\\.json|tsconfig|\\\\.ts$|\\\\.js$\\)\")",
+      "Bash(find /e/lang/qinglong-develop -type f \\\\\\(-name *.ts -o -name *.js \\\\\\) -path */scripts/*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -r \"default.*password\\\\|默认密码\" /e/lang/qinglong-develop/back --include=*.ts)",
+      "Bash(grep -r username.*admin /e/lang/qinglong-develop/back --include=*.ts)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -X PUT http://127.0.0.1:5700/api/system/data/export -H \"Content-Type: application/json\" -d '{\"\"type\"\":[\"\"base\"\",\"\"config\"\",\"\"scripts\"\",\"\"deps\"\"]}')",
+      "Bash(find E:langqinglong-developsrcpages -name *setting* -type f)"
     ]
   }
 }

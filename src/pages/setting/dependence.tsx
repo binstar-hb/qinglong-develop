@@ -31,8 +31,11 @@ const Dependence = () => {
     request
       .get(`${config.apiPrefix}system/config`)
       .then(({ code, data }) => {
-        if (code === 200 && data.info) {
-          setSystemConfig(data.info);
+        if (code === 200) {
+          setSystemConfig({
+            pythonMirror: 'https://pypi.tuna.tsinghua.edu.cn/simple',
+            ...data.info,
+          });
         }
       })
       .catch((error: any) => {
@@ -109,7 +112,7 @@ const Dependence = () => {
     ws.subscribe('updateLinuxMirror', handleMessage);
 
     return () => {
-      ws.subscribe('updateNodeMirror', handleMessage);
+      ws.unsubscribe('updateNodeMirror', handleMessage);
       ws.unsubscribe('updateLinuxMirror', handleMessage);
     };
   }, []);

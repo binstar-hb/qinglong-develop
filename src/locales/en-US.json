@@ -571,5 +571,11 @@
   "远程脚本缓存说明": " — Remote script cache pulled by ql raw command",
   "远程仓库缓存说明": " — Repository cache pulled by ql repo command",
   "SSH文件缓存说明": " — SSH key file cache",
-  "欢迎提出宝贵意见，请联系管理员": "Welcome to share your feedback, please contact the administrator"
+  "欢迎提出宝贵意见，请联系管理员": "Welcome to share your feedback, please contact the administrator",
+  "清空数据": "Reset Data",
+  "确认清空数据": "Confirm Reset Data",
+  "此操作将删除所有数据，包括定时任务、环境变量、脚本文件、依赖、配置文件等，恢复为初始状态。": "This will delete all data including cron tasks, environment variables, scripts, dependencies, configuration files, etc., and restore the system to its initial state.",
+  "清空后系统将自动重启，需要重新设置账号密码。": "The system will restart automatically after reset. You will need to set up your account and password again.",
+  "建议先备份数据再执行此操作。": "It is recommended to backup your data before performing this operation.",
+  "确认清空": "Confirm Reset"
 }

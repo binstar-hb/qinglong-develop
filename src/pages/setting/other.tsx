@@ -71,8 +71,11 @@ const Other = ({
     request
       .get(`${config.apiPrefix}system/config`)
       .then(({ code, data }) => {
-        if (code === 200 && data.info) {
-          setSystemConfig(data.info);
+        if (code === 200) {
+          setSystemConfig({
+            logRemoveFrequency: 7,
+            ...data.info,
+          });
         }
       })
       .catch((error: any) => {

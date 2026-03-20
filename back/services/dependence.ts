@@ -215,6 +215,7 @@ export default class DependenceService {
     return taskLimit.runDependeny(dependency, () => {
       return new Promise(async (resolve) => {
         if (taskLimit.firstDependencyId !== dependency.id) {
+          taskLimit.removeQueuedDependency(dependency);
           return resolve(null);
         }
 
@@ -301,7 +302,7 @@ export default class DependenceService {
           ? `source ${config.dependenceProxyFile} &&`
           : '';
         const cp = spawn(`${proxyStr} ${command}`, {
-          shell: '/bin/bash',
+          shell: true,
         });
 
         cp.stdout.on('data', async (data) => {
@@ -329,6 +330,26 @@ export default class DependenceService {
             references: depIds,
           });
           this.updateLog(depIds, JSON.stringify(err));
+
+          const endTime = dayjs();
+          const _message = `\n依赖${actionText}失败，结束时间 ${endTime.format(
+            'YYYY-MM-DD HH:mm:ss',
+          )}，耗时 ${endTime.diff(startTime, 'second')} 秒`;
+          this.sockService.sendMessage({
+            type: socketMessageType,
+            message: _message,
+            references: depIds,
+          });
+          this.updateLog(depIds, _message);
+
+          const failStatus = isInstall
+            ? DependenceStatus.installFailed
+            : DependenceStatus.removeFailed;
+          await DependenceModel.update(
+            { status: failStatus },
+            { where: { id: depIds } },
+          );
+          resolve(null);
         });
 
         cp.on('exit', async (code) => {
