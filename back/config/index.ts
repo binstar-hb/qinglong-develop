@@ -41,7 +41,14 @@ const config: Config = {
     prefix: '/api',
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'whyour-secret',
+    secret: process.env.JWT_SECRET || (() => {
+      const generated = createRandomString(64, 64);
+      console.warn(
+        '[安全警告] 未设置 JWT_SECRET 环境变量，已自动生成随机密钥。' +
+        '建议在 .env 文件中设置固定的 JWT_SECRET，否则每次重启后所有用户需重新登录。',
+      );
+      return generated;
+    })(),
     expiresIn: process.env.JWT_EXPIRES_IN,
   },
   cors: {

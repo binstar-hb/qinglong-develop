@@ -11,13 +11,28 @@ import { serveEnv } from '../config/serverEnv';
 import { IKeyvStore, shareStore } from '../shared/store';
 import { isValidToken } from '../shared/auth';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 
 export default ({ app }: { app: Application }) => {
   // Security: Enable strict routing to prevent case-insensitive path bypass
   app.set('case sensitive routing', true);
   app.set('strict routing', true);
   app.set('trust proxy', 'loopback');
-  app.use(cors());
+  app.use(cors({
+    origin: config.cors.origin[0] === '*' ? true : config.cors.origin,
+    methods: config.cors.methods,
+    credentials: true,
+  }));
+
+  // 安全响应头：防御 CSRF、点击劫持、MIME 嗅探
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+  });
   
   // Security: Path normalization middleware to prevent case variation attacks
   app.use((req, res, next) => {
@@ -137,7 +152,7 @@ export default ({ app }: { app: Application }) => {
     if (
       Object.keys(authInfo).length === 2 &&
       authInfo.username === 'admin' &&
-      authInfo.password === 'admin'
+      (authInfo.password === 'admin' || bcrypt.compareSync('admin', authInfo.password || ''))
     ) {
       isInitialized = false;
     }

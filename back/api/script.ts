@@ -11,15 +11,37 @@ import multer from 'multer';
 import { writeFileWithLock } from '../shared/utils';
 const route = Router();
 
+// 文件上传安全：扩展名白名单
+const ALLOWED_EXTENSIONS = [
+  '.js', '.ts', '.py', '.sh', '.json', '.yaml', '.yml', '.txt', '.csv',
+  '.mjs', '.cjs', '.jsx', '.tsx',
+];
+
+function sanitizeFilename(filename: string): string {
+  // 提取纯文件名，移除路径遍历字符
+  return path.basename(filename).replace(/\0/g, '');
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, config.scriptPath);
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(null, sanitizeFilename(file.originalname));
   },
 });
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ALLOWED_EXTENSIONS.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`不允许上传 ${ext} 类型的文件`));
+    }
+  },
+});
 
 export default (app: Router) => {
   app.use('/scripts', route);
@@ -44,8 +66,14 @@ export default (app: Router) => {
           'package-lock.json',
         ];
         if (req.query.path) {
+          const queryPath = req.query.path as string;
+          // 路径遍历检查
+          const resolvedPath = path.resolve(config.scriptPath, queryPath);
+          if (!resolvedPath.startsWith(config.scriptPath)) {
+            return res.send({ code: 403, message: '路径不合法' });
+          }
           result = await readDir(
-            req.query.path as string,
+            queryPath,
             config.scriptPath,
             blacklist,
           );
@@ -172,19 +200,23 @@ export default (app: Router) => {
         if (!originFilename) {
           originFilename = filename;
         }
-        const originFilePath = join(
-          path,
-          `${originFilename.replace(/\//g, '')}`,
-        );
+        // 安全过滤：使用 basename 防止路径遍历
+        const safeOriginFilename = sanitizeFilename(originFilename);
+        const safeFilename = sanitizeFilename(filename);
+        const originFilePath = join(path, safeOriginFilename);
         await fs.mkdir(path, { recursive: true });
-        const filePath = join(path, `${filename.replace(/\//g, '')}`);
+        const filePath = join(path, safeFilename);
+        // 二次校验：确保最终路径在允许的目录内
+        if (config.writePathList.every((x) => !filePath.startsWith(x))) {
+          return res.send({ code: 403, message: '暂无权限' });
+        }
         const fileExists = await fileExist(filePath);
         if (fileExists) {
           await fs.copyFile(
             originFilePath,
-            join(config.bakPath, originFilename.replace(/\//g, '')),
+            join(config.bakPath, safeOriginFilename),
           );
-          if (filename !== originFilename) {
+          if (safeFilename !== safeOriginFilename) {
             await rmPath(originFilePath);
           }
         }
@@ -377,8 +409,15 @@ export default (app: Router) => {
         if (!path) {
           path = '';
         }
-        const filePath = join(config.scriptPath, path, filename);
-        const newPath = join(config.scriptPath, path, newFilename);
+        // 安全过滤：使用 basename 防止路径遍历
+        const safeFilename = sanitizeFilename(filename);
+        const safeNewFilename = sanitizeFilename(newFilename);
+        const filePath = join(config.scriptPath, path, safeFilename);
+        const newPath = join(config.scriptPath, path, safeNewFilename);
+        // 确保路径在 scriptPath 内
+        if (!filePath.startsWith(config.scriptPath) || !newPath.startsWith(config.scriptPath)) {
+          return res.send({ code: 403, message: '路径不合法' });
+        }
         await fs.rename(filePath, newPath);
         res.send({ code: 200 });
       } catch (e) {

@@ -26,12 +26,17 @@ const upload = multer({ storage: storage });
 export default (app: Router) => {
   app.use('/user', route);
 
+  const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { code: 429, message: '请求过于频繁，请15分钟后再试' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   route.post(
     '/login',
-    rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 100,
-    }),
+    loginLimiter,
     celebrate({
       body: Joi.object({
         username: Joi.string().required(),
@@ -155,6 +160,7 @@ export default (app: Router) => {
 
   route.put(
     '/two-factor/login',
+    loginLimiter,
     celebrate({
       body: Joi.object({
         code: Joi.string().required(),

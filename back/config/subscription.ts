@@ -1,6 +1,11 @@
 import { Subscription } from '../data/subscription';
 import isNil from 'lodash/isNil';
 
+// 转义双引号内的字符串，防止命令注入
+function escapeDoubleQuoted(str: string): string {
+  return str.replace(/["\\$`!]/g, '\\$&');
+}
+
 export function formatUrl(doc: Subscription) {
   let url = doc.url;
   let host = '';
@@ -32,13 +37,13 @@ export function formatCommand(doc: Subscription, url?: string) {
     autoDelCron,
   } = doc;
   if (type === 'file') {
-    command += `raw "${_url}" "${proxy || ''}" "${
+    command += `raw "${escapeDoubleQuoted(_url || '')}" "${escapeDoubleQuoted(proxy || '')}" "${
       isNil(autoAddCron) ? true : Boolean(autoAddCron)
     }" "${isNil(autoDelCron) ? true : Boolean(autoDelCron)}"`;
   } else {
-    command += `repo "${_url}" "${whitelist || ''}" "${blacklist || ''}" "${
-      dependences || ''
-    }" "${branch || ''}" "${extensions || ''}" "${proxy || ''}" "${
+    command += `repo "${escapeDoubleQuoted(_url || '')}" "${escapeDoubleQuoted(whitelist || '')}" "${escapeDoubleQuoted(blacklist || '')}" "${
+      escapeDoubleQuoted(dependences || '')
+    }" "${escapeDoubleQuoted(branch || '')}" "${escapeDoubleQuoted(extensions || '')}" "${escapeDoubleQuoted(proxy || '')}" "${
       isNil(autoAddCron) ? true : Boolean(autoAddCron)
     }" "${isNil(autoDelCron) ? true : Boolean(autoDelCron)}"`;
   }

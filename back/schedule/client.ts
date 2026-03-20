@@ -10,7 +10,7 @@ import config from '../config';
 
 class Client {
   private client = new CronClient(
-    `0.0.0.0:${config.grpcPort}`,
+    `127.0.0.1:${config.grpcPort}`,
     credentials.createInsecure(),
     { 'grpc.enable_http_proxy': 0 },
   );

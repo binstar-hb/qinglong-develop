@@ -13,6 +13,22 @@ import { FormData } from 'undici';
 
 export * from './share';
 
+// 对 shell 参数进行单引号转义，防止命令注入
+export function shellEscape(arg: string): string {
+  return "'" + arg.replace(/'/g, "'\\''") + "'";
+}
+
+// 对 sed 替换字符串进行转义，防止 sed 注入
+export function sedEscape(str: string): string {
+  return str.replace(/[\/&\\$.*+?^{}()|[\]]/g, '\\$&');
+}
+
+// 检查路径是否在基础目录内，防止路径遍历
+export function isSafePath(userPath: string, basePath: string): boolean {
+  const resolved = path.resolve(basePath, userPath);
+  return resolved.startsWith(basePath);
+}
+
 export async function getFileContentByName(fileName: string) {
   const _exsit = await fileExist(fileName);
   if (_exsit) {
@@ -521,12 +537,17 @@ export async function rmPath(path: string) {
 
 export async function setSystemTimezone(timezone: string): Promise<boolean> {
   try {
+    // 验证 timezone 格式，只允许字母、数字、斜杠、下划线、连字符
+    if (!/^[a-zA-Z0-9_\-\/]+$/.test(timezone)) {
+      throw new Error('Invalid timezone format');
+    }
+
     if (!(await fileExist(`/usr/share/zoneinfo/${timezone}`))) {
       throw new Error('Invalid timezone');
     }
 
-    await promiseExec(`ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime`);
-    await promiseExec(`echo "${timezone}" > /etc/timezone`);
+    await promiseExec(`ln -sf /usr/share/zoneinfo/${shellEscape(timezone)} /etc/localtime`);
+    await promiseExec(`echo ${shellEscape(timezone)} > /etc/timezone`);
 
     return true;
   } catch (error) {
@@ -536,11 +557,12 @@ export async function setSystemTimezone(timezone: string): Promise<boolean> {
 }
 
 export function getGetCommand(type: DependenceTypes, name: string): string {
+  const safeName = shellEscape(name);
   const baseCommands = {
-    [DependenceTypes.nodejs]: `pnpm ls -g  | grep "${name}" | head -1`,
+    [DependenceTypes.nodejs]: `pnpm ls -g  | grep ${safeName} | head -1`,
     [DependenceTypes.python3]: `
     python3 -c "exec('''
-name='${name}'
+name=${safeName.replace(/"/g, '\\"')}
 try:
     from importlib.metadata import version
     print(version(name))
@@ -550,7 +572,7 @@ except:
     spec=u.find_spec(name)
     print(name if spec else '')
 ''')"`,
-    [DependenceTypes.linux]: `apk info -es ${name}`,
+    [DependenceTypes.linux]: `apk info -es ${safeName}`,
   };
 
   return baseCommands[type];
@@ -567,10 +589,10 @@ export function getInstallCommand(type: DependenceTypes, name: string): string {
   let command = baseCommands[type];
 
   if (type === DependenceTypes.python3 && PYTHON_INSTALL_DIR) {
-    command = `${command} --prefix=${PYTHON_INSTALL_DIR}`;
+    command = `${command} --prefix=${shellEscape(PYTHON_INSTALL_DIR)}`;
   }
 
-  return `${command} ${name.trim()}`;
+  return `${command} ${shellEscape(name.trim())}`;
 }
 
 export function getUninstallCommand(
@@ -584,7 +606,7 @@ export function getUninstallCommand(
     [DependenceTypes.linux]: 'apk del',
   };
 
-  return `${baseCommands[type]} ${name.trim()}`;
+  return `${baseCommands[type]} ${shellEscape(name.trim())}`;
 }
 
 export function isDemoEnv() {

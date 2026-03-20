@@ -17,6 +17,8 @@ import {
   readDirs,
   rmPath,
   setSystemTimezone,
+  shellEscape,
+  sedEscape,
 } from '../config/util';
 import {
   DependenceModel,
@@ -136,9 +138,16 @@ export default class SystemService {
       info: { ...oDoc.info, ...info },
     });
     if (info.dependenceProxy) {
+      // 验证代理 URL 格式，防止注入
+      try {
+        new URL(info.dependenceProxy);
+      } catch {
+        return { code: 400, message: '代理地址格式不正确' };
+      }
+      const safeProxy = info.dependenceProxy.replace(/["\\$`]/g, '');
       await fs.promises.writeFile(
         config.dependenceProxyFile,
-        `export http_proxy="${info.dependenceProxy}"\nexport https_proxy="${info.dependenceProxy}"`,
+        `export http_proxy="${safeProxy}"\nexport https_proxy="${safeProxy}"`,
       );
     } else {
       await fs.promises.rm(config.dependenceProxyFile);
@@ -154,7 +163,7 @@ export default class SystemService {
     });
     let cmd = 'pnpm config delete registry';
     if (info.nodeMirror) {
-      cmd = `pnpm config set registry ${info.nodeMirror}`;
+      cmd = `pnpm config set registry ${shellEscape(info.nodeMirror)}`;
     }
     let command = `cd && ${cmd}`;
     const docs = await DependenceModel.findAll({
@@ -202,7 +211,7 @@ export default class SystemService {
     });
     let cmd = 'pip config unset global.index-url';
     if (info.pythonMirror) {
-      cmd = `pip3 config set global.index-url ${info.pythonMirror}`;
+      cmd = `pip3 config set global.index-url ${shellEscape(info.pythonMirror)}`;
     }
     await promiseExec(cmd);
     return { code: 200, data: info };
@@ -233,13 +242,7 @@ export default class SystemService {
     if (info.linuxMirror) {
       targetDomain = info.linuxMirror;
     }
-    const command = `sed -i 's/${defaultDomain.replace(
-      /\//g,
-      '\\/',
-    )}/${targetDomain.replace(
-      /\//g,
-      '\\/',
-    )}/g' /etc/apk/repositories && apk update -f`;
+    const command = `sed -i 's/${sedEscape(defaultDomain)}/${sedEscape(targetDomain)}/g' /etc/apk/repositories && apk update -f`;
 
     this.scheduleService.runTask(
       command,

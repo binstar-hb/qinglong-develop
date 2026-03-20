@@ -18,6 +18,7 @@ import OpenService from '../services/open';
 import { shareStore } from '../shared/store';
 import Logger from './logger';
 import { AppModel } from '../data/open';
+import bcrypt from 'bcryptjs';
 
 export default async () => {
   const cronService = Container.get(CronService);
@@ -53,7 +54,7 @@ export default async () => {
   if (!authConfig?.info || isDemoEnv()) {
     let authInfo = {
       username: 'admin',
-      password: 'admin',
+      password: bcrypt.hashSync('admin', 10),
     };
     try {
       const authFileExist = await fileExist(config.authConfigFile);
@@ -146,7 +147,13 @@ export default async () => {
     for (let i = 0; i < docs.length; i++) {
       const doc = docs[i];
       if (doc) {
-        exec(doc.command);
+        // 安全校验：只允许执行 ql repo 或 ql raw 开头的命令
+        const trimmedCmd = doc.command.trim();
+        if (/^(ql\s+repo|ql\s+raw)\s/.test(trimmedCmd)) {
+          exec(trimmedCmd);
+        } else {
+          Logger.warn(`[initData] 跳过不安全的命令: ${trimmedCmd}`);
+        }
       }
     }
   });

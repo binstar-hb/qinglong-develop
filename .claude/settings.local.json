@@ -20,7 +20,10 @@
       "Bash(pnpm ls:*)",
       "Bash(pnpm info:*)",
       "WebSearch",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npm install:*)",
+      "Bash(ls E:/lang/qinglong-develop/node_modules/bcryptjs/*.d.ts)"
     ]
   }
 }

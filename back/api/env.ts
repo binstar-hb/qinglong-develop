@@ -14,10 +14,15 @@ const storage = multer.diskStorage({
     cb(null, config.scriptPath);
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    // 安全过滤：提取纯文件名
+    const safeName = require('path').basename(file.originalname).replace(/\0/g, '');
+    cb(null, safeName);
   },
 });
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+});
 
 export default (app: Router) => {
   app.use('/envs', route);

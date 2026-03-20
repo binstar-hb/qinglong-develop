@@ -13,6 +13,7 @@ import {
   getUniqPath,
   safeJSONParse,
   isDemoEnv,
+  shellEscape,
 } from '../config/util';
 import { Op, where, col as colFn, FindOptions, fn, Order } from 'sequelize';
 import path from 'path';
@@ -644,10 +645,10 @@ export default class CronService {
     if (!command.startsWith(TASK_PREFIX) && !command.startsWith(QL_PREFIX)) {
       command = `${TASK_PREFIX}${tab.command}`;
     }
-    let commandVariable = `real_time=${Boolean(realTime)} no_tee=true ID=${tab.id} `;
+    let commandVariable = `real_time=${Boolean(realTime)} no_tee=true ID=${shellEscape(String(tab.id))} `;
     // Only include log_name if it has a truthy value to avoid passing null/undefined to shell
     if (tab.log_name) {
-      commandVariable += `log_name=${tab.log_name} `;
+      commandVariable += `log_name=${shellEscape(tab.log_name)} `;
     }
     if (tab.task_before) {
       commandVariable += `task_before='${tab.task_before

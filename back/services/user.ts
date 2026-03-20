@@ -4,6 +4,7 @@ import { createRandomString } from '../config/util';
 import config from '../config';
 import jwt from 'jsonwebtoken';
 import { authenticator } from '@otplib/preset-default';
+import bcrypt from 'bcryptjs';
 import {
   AuthDataType,
   SystemInfo,
@@ -73,7 +74,7 @@ export default class UserService {
 
     if (
       username === cUsername &&
-      password === cPassword &&
+      this.verifyPassword(password, cPassword) &&
       twoFactorActivated &&
       needTwoFactor
     ) {
@@ -94,9 +95,15 @@ export default class UserService {
       const { country, province, city, isp } = ipAddress;
       address = uniq([country, province, city, isp]).filter(Boolean).join(' ');
     }
-    if (username === cUsername && password === cPassword) {
+    if (username === cUsername && this.verifyPassword(password, cPassword)) {
+      // 透明迁移：如果密码是明文格式，自动升级为 bcrypt 哈希
+      if (!this.isBcryptHash(cPassword)) {
+        await this.updateAuthInfo(content, {
+          password: bcrypt.hashSync(password, 10),
+        });
+      }
       const data = createRandomString(50, 100);
-      const expiration = twoFactorActivated ? '60d' : '20d';
+      const expiration = '7d';
       let token = jwt.sign({ data }, config.jwt.secret, {
         expiresIn: config.jwt.expiresIn || expiration,
         algorithm: 'HS384',
@@ -260,8 +267,22 @@ export default class UserService {
     if (password === 'admin') {
       return { code: 400, message: '密码不能设置为admin' };
     }
+    // 密码强度校验
+    if (password.length < 8) {
+      return { code: 400, message: '密码长度不能少于8位' };
+    }
+    if (!/[a-z]/.test(password)) {
+      return { code: 400, message: '密码必须包含小写字母' };
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { code: 400, message: '密码必须包含大写字母' };
+    }
+    if (!/[0-9]/.test(password)) {
+      return { code: 400, message: '密码必须包含数字' };
+    }
     const authInfo = await this.getAuthInfo();
-    await this.updateAuthInfo(authInfo, { username, password });
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    await this.updateAuthInfo(authInfo, { username, password: hashedPassword });
     return { code: 200, message: '更新成功' };
   }
 
@@ -503,12 +524,29 @@ export default class UserService {
       {
         retries,
         twoFactorActivated,
-        password,
+        // 如果重置密码，确保存储哈希值
+        password: password && !this.isBcryptHash(password)
+          ? bcrypt.hashSync(password, 10)
+          : password,
         username,
       },
       (x) => !isNil(x),
     );
 
     await this.updateAuthInfo(authInfo, payload);
+  }
+
+  // 检查密码是否为 bcrypt 哈希格式
+  private isBcryptHash(password: string): boolean {
+    return /^\$2[aby]?\$/.test(password);
+  }
+
+  // 验证密码：支持 bcrypt 哈希和明文（兼容迁移）
+  private verifyPassword(inputPassword: string, storedPassword: string): boolean {
+    if (this.isBcryptHash(storedPassword)) {
+      return bcrypt.compareSync(inputPassword, storedPassword);
+    }
+    // 明文兼容：旧数据未迁移时用直接比较
+    return inputPassword === storedPassword;
   }
 }
