@@ -532,6 +532,7 @@ body[data-mode='phone'] header {
   padding: 0 @space-3;
   height: 48px;
   flex-shrink: 0;
+  position: relative;
   .glass-panel();
   border-bottom: none !important;
 
@@ -745,6 +746,16 @@ body[data-dark='true'] {
     box-shadow: @glass-shadow-dark;
   }
 
+  // 移动端抽屉
+  .ql-mobile-drawer {
+    .ant-drawer-content {
+      background: @glass-bg-dark-heavy !important;
+    }
+    .ql-mobile-drawer-header {
+      border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+  }
+
   // 主内容区
   .ql-content {
     background: @glass-bg-dark;
@@ -806,6 +817,76 @@ body[data-dark='true'] {
 }
 
 // ============================================================
+// 移动端主布局 — 纵向排列
+// ============================================================
+.ql-layout-mobile {
+  flex-direction: column;
+
+  .ql-mobile-header {
+    width: 100%;
+    flex-shrink: 0;
+    justify-content: space-between;
+  }
+
+  .ql-content {
+    margin: @space-2;
+    border-radius: @radius-md;
+  }
+}
+
+// 移动端顶栏品牌区（logo + 标题）
+.ql-mobile-header-brand {
+  display: flex;
+  align-items: center;
+  gap: @space-2;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ql-mobile-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ql-mobile-menu-btn {
+  font-size: 18px;
+  color: inherit;
+}
+
+// ============================================================
+// 移动端抽屉导航
+// ============================================================
+.ql-mobile-drawer {
+  .ant-drawer-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.ql-mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  gap: @space-2;
+  padding: @space-4 @space-4;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+
+  img {
+    width: 32px !important;
+    border-radius: 52% !important;
+    flex-shrink: 0;
+  }
+
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+// ============================================================
 // 移动端增强
 // ============================================================
 body[data-mode='phone'] {
@@ -823,5 +904,19 @@ body[data-mode='phone'] {
 
   .ql-page-header {
     padding: @space-2 @space-3;
+  }
+
+  .ql-page-header-title {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // 移动端：扣除顶栏(48px) + ql-content 上下边距(8px*2=16px) = 64px
+  .ql-container-wrapper {
+    height: calc(100vh - 64px);
+    height: calc(100vh - var(--vh-offset, 0px) - 64px);
   }
 }

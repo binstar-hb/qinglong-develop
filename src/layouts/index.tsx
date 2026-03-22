@@ -6,13 +6,14 @@ import { request } from '@/utils/http';
 import {
   LogoutOutlined,
   MenuFoldOutlined,
+  MenuOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { StyleProvider } from '@ant-design/cssinjs';
 import { history, Outlet, useLocation } from '@umijs/max';
 import * as DarkReader from '@umijs/ssr-darkreader';
-import { Avatar, Badge, ConfigProvider, Dropdown, Image, Menu, MenuProps, Tooltip } from 'antd';
+import { Avatar, Badge, Button, ConfigProvider, Drawer, Dropdown, Image, Menu, MenuProps, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import intl from 'react-intl-universal';
 import vhCheck from 'vh-check';
@@ -51,6 +52,7 @@ export default function () {
   const [loading, setLoading] = useState<boolean>(true);
   const [systemInfo, setSystemInfo] = useState<TSystemInfo>();
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [initLoading, setInitLoading] = useState<boolean>(true);
   const {
     enable: enableDarkMode,
@@ -277,8 +279,9 @@ export default function () {
             },
           }}
         >
-          <div className="ql-layout">
-            {/* 侧边栏 */}
+        <div className={`ql-layout${ctx.isPhone ? ' ql-layout-mobile' : ''}`}>
+            {/* 桌面端侧边栏 */}
+            {!ctx.isPhone && (
             <div
               className={`ql-sider ${collapsed ? 'ql-sider-collapsed' : ''}`}
               style={{ width: collapsed ? siderCollapsedWidth : siderWidth }}
@@ -341,7 +344,7 @@ export default function () {
                     e.stopPropagation();
                   }}
                 >
-                  {!collapsed && !ctx.isPhone && (
+                  {!collapsed && (
                     <Dropdown menu={userMenu} placement="topLeft" trigger={['hover']}>
                       <span className="side-menu-user-wrapper">
                         <Avatar
@@ -367,10 +370,21 @@ export default function () {
                 </span>
               </div>
             </div>
+            )}
 
-            {/* 手机端顶栏 */}
+            {/* 移动端顶栏 */}
             {ctx.isPhone && (
               <div className="ql-mobile-header">
+                <Button
+                  type="text"
+                  icon={<MenuOutlined />}
+                  className="ql-mobile-menu-btn"
+                  onClick={() => setDrawerOpen(true)}
+                />
+                <div className="ql-mobile-header-brand">
+                  <Image preview={false} src="https://qn.whyour.cn/logo.png" width={24} />
+                  <span className="ql-mobile-header-title">{intl.get('清珑')}</span>
+                </div>
                 <Dropdown menu={userMenu} placement="bottomRight" trigger={['click']}>
                   <span className="side-menu-user-wrapper">
                     <Avatar
@@ -381,11 +395,32 @@ export default function () {
                         user.avatar ? `${config.apiPrefix}static/${user.avatar}` : ''
                       }
                     />
-                    <span style={{ marginLeft: 5 }}>{user.username}</span>
                   </span>
                 </Dropdown>
               </div>
             )}
+
+            {/* 移动端抽屉导航 */}
+            <Drawer
+              open={ctx.isPhone && drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+              placement="left"
+              width={240}
+              styles={{ body: { padding: 0 } }}
+              closeIcon={null}
+              className="ql-mobile-drawer"
+            >
+              <div className="ql-mobile-drawer-header">
+                <Image preview={false} src="https://qn.whyour.cn/logo.png" width={32} />
+                <span className="title">{intl.get('清珑')}</span>
+              </div>
+              <Menu
+                mode="inline"
+                selectedKeys={[location.pathname]}
+                items={menuItems}
+                onClick={({ key }) => { onMenuClick({ key }); setDrawerOpen(false); }}
+              />
+            </Drawer>
 
             {/* 主内容区 */}
             <div className="ql-content">

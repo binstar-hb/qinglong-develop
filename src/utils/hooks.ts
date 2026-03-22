@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import browserType from './index';
 
 export type EditorThemeType = 'vs' | 'vs-dark';
@@ -10,9 +10,9 @@ export const useCtx = () => {
   const [isMedium, setIsMedium] = useState(false);
   const { platform } = useMemo(() => browserType(), []);
 
-  useEffect(() => {
+  const updateDevice = useCallback(() => {
     const w = document.body.offsetWidth;
-    if (platform === 'mobile' && w < 768) {
+    if (platform === 'mobile' || w < 768) {
       setWidth('auto');
       setMarginLeft(0);
       setIsPhone(true);
@@ -31,7 +31,13 @@ export const useCtx = () => {
       setIsMedium(false);
       document.body.setAttribute('data-mode', 'desktop');
     }
-  }, []);
+  }, [platform]);
+
+  useEffect(() => {
+    updateDevice();
+    window.addEventListener('resize', updateDevice);
+    return () => window.removeEventListener('resize', updateDevice);
+  }, [updateDevice]);
 
   return {
     headerStyle: {

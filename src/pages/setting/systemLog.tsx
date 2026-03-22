@@ -57,8 +57,8 @@ const SystemLog = ({ height, theme }: any) => {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: `${height}px` }}>
+      <div style={{ flexShrink: 0, paddingBottom: 8 }}>
         <RangePicker
           style={{ marginBottom: 12, marginRight: 12 }}
           disabledDate={(date) =>
@@ -94,55 +94,57 @@ const SystemLog = ({ height, theme }: any) => {
           {intl.get('清空日志')}
         </Button>
       </div>
-      {systemLogData ? (
-        <>
-          <CodeMirror
-            height={`${height}px`}
-            value={systemLogData}
-            onCreateEditor={(view) => {
-              editorRef.current = view;
-            }}
-            extensions={[
-              systemLogDebugHighlightPlugin,
-              systemLogErrorHighlightPlugin,
-              systemLogInfoHighlightPlugin,
-              systemLogWarnHighlightPlugin,
-              systemLogTheme,
-            ]}
-            readOnly={true}
-            theme={theme.includes('dark') ? 'dark' : 'light'}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 20,
-              right: 20,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-            }}
-          >
-            <Button
-              size="small"
-              icon={<VerticalAlignTopOutlined />}
-              onClick={() => {
-                scrollTo('start');
+      <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+        {systemLogData ? (
+          <>
+            <CodeMirror
+              height="100%"
+              value={systemLogData}
+              onCreateEditor={(view) => {
+                editorRef.current = view;
               }}
+              extensions={[
+                systemLogDebugHighlightPlugin,
+                systemLogErrorHighlightPlugin,
+                systemLogInfoHighlightPlugin,
+                systemLogWarnHighlightPlugin,
+                systemLogTheme,
+              ]}
+              readOnly={true}
+              theme={theme.includes('dark') ? 'dark' : 'light'}
             />
-            <Button
-              size="small"
-              icon={<VerticalAlignBottomOutlined />}
-              onClick={() => {
-                scrollTo('end');
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 20,
+                right: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
               }}
-            />
-          </div>
-        </>
-      ) : loading ? (
-        <Spin />
-      ) : (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-      )}
+            >
+              <Button
+                size="small"
+                icon={<VerticalAlignTopOutlined />}
+                onClick={() => {
+                  scrollTo('start');
+                }}
+              />
+              <Button
+                size="small"
+                icon={<VerticalAlignBottomOutlined />}
+                onClick={() => {
+                  scrollTo('end');
+                }}
+              />
+            </div>
+          </>
+        ) : loading ? (
+          <Spin />
+        ) : (
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        )}
+      </div>
     </div>
   );
 };

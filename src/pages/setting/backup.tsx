@@ -168,7 +168,7 @@ const Backup = () => {
   };
 
   return (
-    <div style={{ maxWidth: 800, padding: '0 2px' }}>
+    <div style={{ maxWidth: 800, padding: '0 2px 24px' }}>
       <Alert
         type="info"
         showIcon
