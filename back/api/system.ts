@@ -3,6 +3,7 @@ import { Container } from 'typedi';
 import { Logger } from 'winston';
 import * as fs from 'fs/promises';
 import config from '../config';
+import * as bcrypt from 'bcryptjs';
 import SystemService from '../services/system';
 import { celebrate, Joi } from 'celebrate';
 import UserService from '../services/user';
@@ -42,7 +43,7 @@ export default (app: Router) => {
       if (
         Object.keys(authInfo).length === 2 &&
         authInfo.username === 'admin' &&
-        authInfo.password === 'admin'
+        (authInfo.password === 'admin' || bcrypt.compareSync('admin', authInfo.password || ''))
       ) {
         isInitialized = false;
       }
