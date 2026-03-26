@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"COOP\\\\|COEP\\\\|Cross-Origin\" /e/lang/qinglong-develop --include=*.ts --include=*.js --include=*.json)",
+      "Bash(grep -r \"setHeader\\\\|headers\\\\|Embedding\\\\|Policies\" /e/lang/qinglong-develop/back --include=*.ts)",
+      "Bash(grep -r \"devServer\\\\|proxy\\\\|setupProxy\" /e/lang/qinglong-develop --include=*.ts --include=*.js)"
+    ]
+  }
+}
