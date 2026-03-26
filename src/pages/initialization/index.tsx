@@ -15,7 +15,6 @@ import styles from './index.less';
 import { request } from '@/utils/http';
 
 const FormItem = Form.Item;
-const { Step } = Steps;
 const { Link } = Typography;
 
 const Initialization = () => {
@@ -96,11 +95,27 @@ const Initialization = () => {
                 pattern: /^(?!admin$).*$/,
                 message: intl.get('密码不能为admin'),
               },
+              {
+                min: 8,
+                message: intl.get('密码长度不能少于8位'),
+              },
+              {
+                pattern: /[a-z]/,
+                message: intl.get('密码必须包含小写字母'),
+              },
+              {
+                pattern: /[A-Z]/,
+                message: intl.get('密码必须包含大写字母'),
+              },
+              {
+                pattern: /[0-9]/,
+                message: intl.get('密码必须包含数字'),
+              },
             ]}
             hasFeedback
             style={{ maxWidth: 350 }}
           >
-            <Input type="password" placeholder={intl.get('密码')} />
+            <Input.Password placeholder={intl.get('密码')} />
           </Form.Item>
           <Form.Item
             name="confirm"
@@ -138,12 +153,6 @@ const Initialization = () => {
         <div className={styles.top} style={{ marginTop: 80 }}>
           <div className={styles.header}>
             <span className={styles.title}>{intl.get('恭喜安装完成！')}</span>
-            <Link href="https://github.com/whyour/qinglong" target="_blank">
-              Github
-            </Link>
-            <Link href="https://t.me/jiao_long" target="_blank">
-              {intl.get('Telegram频道')}
-            </Link>
           </div>
           <div style={{ marginTop: 16 }}>
             <Button
@@ -178,11 +187,8 @@ const Initialization = () => {
           direction="vertical"
           size="small"
           className={styles['ant-steps']}
-        >
-          {steps.map((item) => (
-            <Step key={item.title} title={item.title} />
-          ))}
-        </Steps>
+          items={steps.map((item) => ({ title: item.title }))}
+        />
         <div className={styles['steps-container']}>
           {steps[current].content}
         </div>
