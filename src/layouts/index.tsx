@@ -274,7 +274,7 @@ export default function () {
           theme={{
             token: {
               colorPrimary: '#6366f1',
-              fontFamily: "'HarmonyOS Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+              fontFamily: "'SweiToothpaste', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
               borderRadius: 6,
             },
           }}

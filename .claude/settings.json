@@ -3,7 +3,13 @@
     "allow": [
       "Bash(grep -r \"COOP\\\\|COEP\\\\|Cross-Origin\" /e/lang/qinglong-develop --include=*.ts --include=*.js --include=*.json)",
       "Bash(grep -r \"setHeader\\\\|headers\\\\|Embedding\\\\|Policies\" /e/lang/qinglong-develop/back --include=*.ts)",
-      "Bash(grep -r \"devServer\\\\|proxy\\\\|setupProxy\" /e/lang/qinglong-develop --include=*.ts --include=*.js)"
+      "Bash(grep -r \"devServer\\\\|proxy\\\\|setupProxy\" /e/lang/qinglong-develop --include=*.ts --include=*.js)",
+      "Bash(tar -tzf harmonyos-sans-1.0.0.tgz)",
+      "Bash(mkdir -p /tmp/harmonyos-font)",
+      "Bash(tar -xzf harmonyos-sans-1.0.0.tgz -C /tmp/harmonyos-font)",
+      "Read(//tmp/harmonyos-font/**)",
+      "Bash(unzip -l \"HarmonyOS Sans.zip\")",
+      "WebFetch(domain:registry.npmmirror.com)"
     ]
   }
 }

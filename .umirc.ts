@@ -34,12 +34,7 @@ export default defineConfig({
       }),
     );
   }) as any,
-  links: [
-    {
-      rel: 'stylesheet',
-      href: 'https://cdn.jsdelivr.net/npm/harmonyos-sans@1.0.0/css/harmonyos-sans.min.css',
-    },
-  ],
+  links: [],
   headScripts: [`./api/env.js`],
   copy: [
     {
